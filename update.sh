@@ -2,7 +2,7 @@
 # Installs or updates HandheldFanTweaker from the latest GitHub release.
 # Usage: curl -fsSL https://raw.githubusercontent.com/sleoier/HandheldFanTweaker/main/update.sh | sudo sh
 set -e
-URL="https://github.com/sleoier/HandheldFanTweaker/releases/latest/download/HandheldFanTweaker.zip"
+API="https://api.github.com/repos/sleoier/HandheldFanTweaker/releases/latest"
 
 if [ "$(id -u)" -ne 0 ]; then
   echo "Run it with sudo." >&2
@@ -17,7 +17,13 @@ version() { python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["ve
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-echo "Downloading the latest release..."
+# Asked to the API: the releases/latest/download redirect can lag behind a new release.
+URL="$(curl -fsSL "$API" | python3 -c 'import json, sys
+for asset in json.load(sys.stdin).get("assets", []):
+    if asset["name"] == "HandheldFanTweaker.zip":
+        print(asset["browser_download_url"])')"
+[ -n "$URL" ] || { echo "Couldn't find HandheldFanTweaker.zip in the latest release." >&2; exit 1; }
+echo "Downloading $URL"
 curl -fsSL -o "$TMP/plugin.zip" "$URL"
 python3 -m zipfile -e "$TMP/plugin.zip" "$TMP/x"
 [ -f "$TMP/x/HandheldFanTweaker/plugin.json" ] || { echo "The release zip doesn't look like this plugin." >&2; exit 1; }
