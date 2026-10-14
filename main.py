@@ -19,6 +19,11 @@ class Plugin:
             decky.logger.info("HandheldFanTweaker: reconcile_on_start → %s", outcome)
         except Exception:
             decky.logger.exception("HandheldFanTweaker: reconcile_on_start failed")
+        try:
+            level = await asyncio.to_thread(self.underclock.apply_saved)
+            decky.logger.info("HandheldFanTweaker: underclock level on start → %s", level)
+        except Exception:
+            decky.logger.exception("HandheldFanTweaker: applying the saved underclock failed")
         self._underclock_task = asyncio.get_running_loop().create_task(self._keep_underclock())
 
     async def _unload(self):

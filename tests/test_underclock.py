@@ -122,6 +122,18 @@ class UnderclockServiceTest(unittest.TestCase):
         self.assertEqual(self.cpu.caps, {"policy0": 3532800, "policy6": 4089600})
         self.assertEqual(self.daemon.reloads, 2)
 
+    def test_apply_saved_writes_the_exact_caps_on_start(self):
+        self.settings.put("underclock", "medium")
+        self.cpu.caps = {"policy0": 2227200, "policy6": 2438400}
+        self.assertEqual(self.service.apply_saved(), "medium")
+        self.assertEqual(self.cpu.caps, {"policy0": 2745600, "policy6": 3072000})
+
+    def test_apply_saved_leaves_clocks_alone_when_off(self):
+        self.cpu.caps["policy6"] = 2000000
+        self.assertEqual(self.service.apply_saved(), "off")
+        self.assertEqual(self.cpu.caps["policy6"], 2000000)
+        self.assertEqual(self.daemon.reloads, 0)
+
     def test_bad_level_changes_nothing(self):
         with self.assertRaises(UnknownLevel):
             self.service.set_level("ultra")

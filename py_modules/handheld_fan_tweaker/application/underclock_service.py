@@ -55,6 +55,12 @@ class UnderclockService:
             self._daemon.reload()
         return self.state()
 
+    def apply_saved(self) -> str:
+        level = self.level()
+        if level != OFF:
+            self.set_level(level)
+        return level
+
     def enforce(self) -> List[str]:
         """Lowers any cluster whose cap is above the chosen level. A lower
         cap (for example Steam's TDP limit) is left alone, so the stricter
