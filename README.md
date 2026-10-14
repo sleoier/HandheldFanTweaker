@@ -16,6 +16,14 @@ Plugin de [Decky Loader](https://github.com/SteamDeckHomebrew/decky-loader) para
 
 ## Instalación
 
+**Por comando** (instala o actualiza a la última versión), en Konsole:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/sleoier/HandheldFanTweaker/main/update.sh | sudo sh
+```
+
+**Desde Decky:**
+
 1. Descarga `HandheldFanTweaker.zip` del [último release](https://github.com/sleoier/HandheldFanTweaker/releases/latest).
 2. En Decky: ⚙️ Ajustes → **General** → activa **Developer mode**.
 3. ⚙️ Ajustes → **Developer** → **Install Plugin from URL** y pega el enlace del `.zip` (o **Install Plugin from ZIP File** si lo copiaste a la consola).

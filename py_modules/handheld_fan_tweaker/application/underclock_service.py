@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from ..domain import LEVELS, OFF
 from ..domain.underclock import check_level, managed_clusters, plan
@@ -44,12 +44,15 @@ class UnderclockService:
         }
 
     def set_level(self, level: str) -> dict:
+        """Writes the level's caps as they are, so moving to a lighter level
+        raises them again, then lets the daemon put back its own limits (such
+        as Steam's TDP); enforce() then keeps whichever is stricter."""
         check_level(level)
         self._settings.put(SETTING_KEY, level)
-        if level == OFF:
-            self._release()
-        else:
-            self.enforce()
+        for name, cap in plan(level, self._cpu.clusters()).items():
+            self._cpu.set_max(name, cap)
+        if self._daemon is not None:
+            self._daemon.reload()
         return self.state()
 
     def enforce(self) -> List[str]:
@@ -66,12 +69,3 @@ class UnderclockService:
                 self._cpu.set_max(name, cap)
                 changed.append(name)
         return changed
-
-    def _release(self) -> None:
-        for name, top in self._tops().items():
-            self._cpu.set_max(name, top)
-        if self._daemon is not None:
-            self._daemon.reload()  # lets the daemon put its own TDP caps back
-
-    def _tops(self) -> Dict[str, int]:
-        return {c.name: c.max_khz for c in managed_clusters(self._cpu.clusters())}

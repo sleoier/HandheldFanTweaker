@@ -106,11 +106,21 @@ class UnderclockServiceTest(unittest.TestCase):
         self.assertEqual(self.service.enforce(), [])
         self.assertEqual(self.cpu.caps["policy6"], 2000000)
 
+    def test_moving_to_a_lighter_level_raises_the_caps(self):
+        self.service.set_level("high")
+        self.service.set_level("medium")
+        self.assertEqual(self.cpu.caps, {"policy0": 2745600, "policy6": 3072000})
+
+    def test_every_level_change_lets_the_daemon_reapply_its_limits(self):
+        self.service.set_level("low")
+        self.service.set_level("medium")
+        self.assertEqual(self.daemon.reloads, 2)
+
     def test_off_restores_full_speed_and_reloads_the_daemon(self):
         self.service.set_level("high")
         self.service.set_level("off")
         self.assertEqual(self.cpu.caps, {"policy0": 3532800, "policy6": 4089600})
-        self.assertEqual(self.daemon.reloads, 1)
+        self.assertEqual(self.daemon.reloads, 2)
 
     def test_bad_level_changes_nothing(self):
         with self.assertRaises(UnknownLevel):
