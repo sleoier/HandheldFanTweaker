@@ -1,0 +1,11 @@
+{
+  "name": "HandheldFanTweaker",
+  "author": "Sleoier",
+  "flags": ["root"],
+  "api_version": 1,
+  "publish": {
+    "tags": ["fan", "fan-curve", "thermal", "arm64", "steamos-arm", "handheld"],
+    "description": "Edit the fan curves of SteamOS ARM Port handhelds (odin3d / konkrd).",
+    "image": ""
+  }
+}
