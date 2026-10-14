@@ -10,7 +10,7 @@ import json
 import os
 import sys
 
-from .composition import build_service
+from .composition import build_service, build_underclock_service
 from .domain import FanCurvesError
 from .infrastructure import parse_curve_text
 
@@ -30,11 +30,17 @@ def main(argv=None) -> int:
     set_cmd.add_argument("curve", help='e.g. "50:0,60:40,75:120,90:255"')
     reset_cmd = sub.add_parser("reset")
     reset_cmd.add_argument("profile")
+    uc_cmd = sub.add_parser("underclock", help="show, or set to off/low/medium/high")
+    uc_cmd.add_argument("level", nargs="?")
     args = parser.parse_args(argv)
 
-    service = build_service(args.settings, fs_root=args.root, sys_root=args.sys_root, dry_run=args.dry_run)
+    roots = dict(fs_root=args.root, sys_root=args.sys_root, dry_run=args.dry_run)
+    service = build_service(args.settings, **roots)
     try:
-        if args.command == "state":
+        if args.command == "underclock":
+            underclock = build_underclock_service(args.settings, **roots)
+            result = underclock.set_level(args.level) if args.level else underclock.state()
+        elif args.command == "state":
             result = service.state()
         elif args.command == "telemetry":
             result = service.telemetry()

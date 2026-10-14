@@ -28,4 +28,18 @@ export interface PluginState {
   limits: Limits;
 }
 
+export interface ClusterState {
+  name: string;
+  cpus: string;
+  max_khz: number;
+  target_khz: number;
+  current_max_khz: number | null;
+}
+
+export interface UnderclockState {
+  level: string;
+  levels: string[];
+  clusters: ClusterState[];
+}
+
 export type Result<T> = { ok: true; value: T } | { ok: false; error: string };

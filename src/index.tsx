@@ -4,8 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getState, getTelemetry, resetCurve, setCurve } from "./api";
 import { CurveChart } from "./components/CurveChart";
+import { NotchPicker } from "./components/NotchPicker";
 import { PointEditor } from "./components/PointEditor";
-import { ProfilePicker } from "./components/ProfilePicker";
+import { UnderclockSection } from "./components/UnderclockSection";
 import { firstProblem, pwmToPercent, samePoints, withExtraPoint, withoutPoint } from "./curve";
 import { profileLabel } from "./labels";
 import type { PluginState, Point, Telemetry } from "./types";
@@ -119,6 +120,8 @@ function Content() {
         </PanelSectionRow>
       </PanelSection>
 
+      <UnderclockSection />
+
       {!state.editable ? (
         <PanelSection title="Curves">
           <PanelSectionRow>
@@ -128,9 +131,11 @@ function Content() {
       ) : (
         <PanelSection title="Curves">
           <PanelSectionRow>
-            <ProfilePicker
-              profiles={state.profile_order}
+            <NotchPicker
+              label="Profile to edit"
+              options={state.profile_order}
               selected={profile}
+              labelFor={profileLabel}
               onSelect={(p) => {
                 setProfile(p);
                 setDraft(state.profiles[p] ?? []);
